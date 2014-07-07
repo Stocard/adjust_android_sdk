@@ -34,6 +34,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -47,21 +48,21 @@ public class RequestHandler extends HandlerThread implements IRequestHandler {
     private IPackageHandler packageHandler;
     private HttpClient      httpClient;
     private Logger          logger;
+    private Context         context;
 
-    public RequestHandler(IPackageHandler packageHandler) {
+    public RequestHandler(IPackageHandler packageHandler, Context context) {
         super(Constants.LOGTAG, MIN_PRIORITY);
         setDaemon(true);
         start();
 
         this.logger = AdjustFactory.getLogger();
         this.internalHandler = new InternalHandler(getLooper(), this);
-
         this.packageHandler = packageHandler;
+        this.context = context;
 
         Message message = Message.obtain();
         message.arg1 = InternalHandler.INIT;
         internalHandler.sendMessage(message);
-
     }
 
     @Override
@@ -132,8 +133,8 @@ public class RequestHandler extends HandlerThread implements IRequestHandler {
     private void requestFinished(HttpResponse response, ActivityPackage activityPackage) {
         int statusCode = response.getStatusLine().getStatusCode();
         String responseString = parseResponse(response);
-        JSONObject jsonObject = Util.buildJsonObject(responseString);
-        ResponseData responseData = ResponseData.fromJson(jsonObject, responseString);
+        JSONObject jsonResponse = Util.buildJsonObject(responseString);
+        ResponseData responseData = ResponseData.fromJson(jsonResponse, responseString);
 
         if (HttpStatus.SC_OK == statusCode) {
             // success
@@ -144,7 +145,7 @@ public class RequestHandler extends HandlerThread implements IRequestHandler {
             logger.error(String.format("%s. (%s)", activityPackage.getFailureMessage(), responseData.getError()));
         }
 
-        packageHandler.finishedTrackingActivity(activityPackage, responseData);
+        packageHandler.finishedTrackingActivity(activityPackage, responseData, jsonResponse);
         packageHandler.sendNextPackage();
     }
 
@@ -169,7 +170,7 @@ public class RequestHandler extends HandlerThread implements IRequestHandler {
 
         ResponseData responseData = ResponseData.fromError(reasonString);
         responseData.setWillRetry(!packageHandler.dropsOfflineActivities());
-        packageHandler.finishedTrackingActivity(activityPackage, responseData);
+        packageHandler.finishedTrackingActivity(activityPackage, responseData, null);
         packageHandler.closeFirstPackage();
     }
 
@@ -180,7 +181,7 @@ public class RequestHandler extends HandlerThread implements IRequestHandler {
         logger.error(String.format("%s. (%s)", failureMessage, reasonString));
 
         ResponseData responseData = ResponseData.fromError(reasonString);
-        packageHandler.finishedTrackingActivity(activityPackage, responseData);
+        packageHandler.finishedTrackingActivity(activityPackage, responseData, null);
         packageHandler.sendNextPackage();
     }
 

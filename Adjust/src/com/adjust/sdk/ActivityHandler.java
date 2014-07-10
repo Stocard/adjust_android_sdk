@@ -476,6 +476,7 @@ public class ActivityHandler extends HandlerThread {
 
     private void runDelegateMain(ResponseData responseData) {
         if (onFinishedListener == null) return;
+        if (responseData == null) return;
         onFinishedListener.onFinishedTracking(responseData);
     }
 

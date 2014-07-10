@@ -181,7 +181,7 @@ public class PackageHandler extends HandlerThread implements IPackageHandler {
     // internal methods run in dedicated queue thread
 
     private void initInternal() {
-        requestHandler = AdjustFactory.getRequestHandler(this, context);
+        requestHandler = AdjustFactory.getRequestHandler(this);
 
         isSending = new AtomicBoolean();
 

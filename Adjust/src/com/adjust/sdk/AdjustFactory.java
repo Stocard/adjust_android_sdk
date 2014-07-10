@@ -23,9 +23,9 @@ public class AdjustFactory {
         return packageHandler;
     }
 
-    public static IRequestHandler getRequestHandler(IPackageHandler packageHandler, Context context) {
+    public static IRequestHandler getRequestHandler(IPackageHandler packageHandler) {
         if (requestHandler == null) {
-            return new RequestHandler(packageHandler, context);
+            return new RequestHandler(packageHandler);
         }
         return requestHandler;
     }

@@ -42,7 +42,7 @@ public class TestRequestHandler extends ActivityInstrumentationTestCase2<UnitTes
         Context context = getActivity().getApplicationContext();
 
         // inject the mock package handler to our request handler
-        requestHandler = new RequestHandler(mockPackageHandler, context);
+        requestHandler = new RequestHandler(mockPackageHandler);
 
         // it's necessary to sleep the activity for a while after each handler call
         // to let the internal queue act
@@ -85,10 +85,6 @@ public class TestRequestHandler extends ActivityInstrumentationTestCase2<UnitTes
         // check that the package handler was called to send the next package
         assertTrue(mockLogger.toString(),
             mockLogger.containsTestMessage("PackageHandler sendNextPackage"));
-
-        //  check the deep link from the response
-        assertTrue(mockLogger.toString(),
-            mockLogger.containsMessage(LogLevel.ERROR, "Unable to open deep link (testApp://)"));
     }
 
     public void testErrorSendPackage() {

@@ -34,7 +34,6 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.json.JSONObject;
 
-import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -48,9 +47,8 @@ public class RequestHandler extends HandlerThread implements IRequestHandler {
     private IPackageHandler packageHandler;
     private HttpClient      httpClient;
     private Logger          logger;
-    private Context         context;
 
-    public RequestHandler(IPackageHandler packageHandler, Context context) {
+    public RequestHandler(IPackageHandler packageHandler) {
         super(Constants.LOGTAG, MIN_PRIORITY);
         setDaemon(true);
         start();
@@ -58,7 +56,6 @@ public class RequestHandler extends HandlerThread implements IRequestHandler {
         this.logger = AdjustFactory.getLogger();
         this.internalHandler = new InternalHandler(getLooper(), this);
         this.packageHandler = packageHandler;
-        this.context = context;
 
         Message message = Message.obtain();
         message.arg1 = InternalHandler.INIT;
